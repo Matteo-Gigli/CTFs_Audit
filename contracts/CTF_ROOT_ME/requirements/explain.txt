@@ -1,0 +1,96 @@
+Exploit RootMe
+
+Exploit Facile
+
+Quello che ci richiede l'esercizio è di riuscire a cambiare la variabile victory, settata su false.
+
+Diamo quindi un occhiata al contratto per capirlo meglio.
+
+Ci sono 3 funzioni:
+
+1) register(string memory username, string memory salt) che ci permette di registrarci.
+2) _getIdentifier(string memory user, string memory salt) che ci restituisce il bytes32 dei due parametri insieme
+3) write(bytes32 storageSlot, bytes32 data) che ci permette di scrivere su un determinato slot del contratto.
+
+
+Ora Vediamo nello specifico le varie funzioni:
+
+    function register(string memory username, string memory salt) public {
+        require(usernames[username] == false, "Username already exists");
+
+        usernames[username] = true;
+
+        bytes32 identifier = _getIdentifier(username, salt);
+        accountByIdentifier[identifier] = msg.sender;
+    }
+
+Questa è la funzione per registrarsi:
+1) Fà una require che controlla se l'username è già nel contratto.
+2) popola la mappping usernames
+3) Crea un bytes32 dai parametri passati
+4) popola una mappa con il bytes32 e lo assegna al msg.sender
+
+
+
+Andiamo quindi a vedere la funzione write
+
+    function write(bytes32 storageSlot, bytes32 data) external onlyRoot {
+        assembly {
+            // stores `data` in storage at position `storageSlot`
+            sstore(storageSlot, data)
+        }
+    }
+
+
+Come abbiamo detto la funzione write ci permette di scrivere in uno slot, l'unica cosa da notare è che ha un
+modifier, che permette l'accesso solo se il msg.sender è settato con l'identifier che deriva da ROOT, ROOT.
+
+
+L'ultima funzione che dobbiamo vedere è la seguente:
+
+    function _getIdentifier(string memory user, string memory salt) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(user, salt));
+    }
+
+
+Questa funzione è semplicemente una view che ci restituisce l'hash dei parametri che gli passiamo.
+
+
+Ora possiamo fare qualche prova per vedere come funzionano gli hash della funzione _getIdentifier():
+
+Come sappiamo, l'owner del contratto, ha l'identifier settato su "ROOT", "ROOT" che sono username e salt.
+
+Possiamo quindi usare la funzione _getIdentifier() per vedere il bytes corrispondente all'owner del contratto.
+
+Il risultato che avremo sarà il seguente:
+
+    Owner bytes Identifier = 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a
+
+Abbiamo quindi il bytes corrispondente all'owner.
+
+Ora, quale sarebbe l'identifier di un user che usa la funzione register(), passandogli come parametri
+"ROO", "TROOT" ?
+
+usando sempre la funzione _getIdentifier(), ci accorgiamo che il risultato è il seguente:
+
+    User bytes Identifier = 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a
+
+Come possiamo notare è identico.
+
+Ma perche succede questo?
+
+Succede perchè c'è una concatenazione di 2 bytes.
+Infatti se ad esempio passassi:
+
+1) bytes1 = "ROOT", "ROOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+2) bytes2 = "ROO", "TROOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+3) bytes3 = "ROOTR", "OOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+4) ....
+
+Otterremmo sempre lo stesso risultato.
+
+Questo quindi ci aprirebbe la possibilità di andare ad usare la funzione write, visto che ora abbiamo
+l'accesso ad essa.
+
+Andiamo quindi nella funzione write, dopo esserci registrati con "ROO", "TROOT" e andiamo a settare la
+variabile victory su true, come possiamo vedere da CTF_ROOT_ME/CTFS_ROOTME_test/test.js

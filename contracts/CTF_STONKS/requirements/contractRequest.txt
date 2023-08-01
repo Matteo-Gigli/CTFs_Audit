@@ -1,0 +1,5 @@
+Valve Exercise Request
+
+The evil Dr. N. Gas has put into orbit a machine that can suck all the air out of the atmosphere.
+You sneaked into his spaceship and must find a nozzle to open the main valve and stop the machine!
+Assert the situation and don't panic. Hint: on the valve is marked "model no. EIP-150"

@@ -1,0 +1,51 @@
+Exploit Trickster
+
+Exploit Facile
+
+Dobbiamo riuscire a prendere tutti i fondi dal contratto Jackpot.
+
+contract Jackpot {
+    address private jackpotProxy;
+    address private owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+
+
+    function initialize(address _jackpotProxy) public payable {
+        jackpotProxy = _jackpotProxy;
+    }
+
+
+
+    modifier onlyJackpotProxy() {
+        require(msg.sender == jackpotProxy);
+        _;
+    }
+
+
+
+    function claimPrize(uint256 amount) external payable onlyJackpotProxy {
+        payable(msg.sender).transfer(amount * 2);
+    }
+
+
+
+    fallback() external payable {}
+
+    receive() external payable {}
+}
+
+
+Come possiamo vedere, c'è un problema molto evidente con gli accessi delle funzioni.
+
+Chiunque potrebbe settare se stesso come jackpotProxy, usando la funzione initialize().
+Questo perchè non ci sono nè modificatori, ne tantomeno delle require che controllino chi chiama questa funzione.
+
+Una volta che ci siamo settati come jackpotProxy, l'unica cosa che ci rimane da fare è chiamare la funzione
+claimPrize(), passandogli come amount la metà di quello che c'è nel contratto.
+
+Se abbiamo 50 ether nel contratto, passiamo come parametro 25 ether, e questo svuoterà il contratto completamente.

@@ -1,0 +1,76 @@
+Exploit Golden Ticket
+
+Exploit Facile
+
+Quello che dobbiamo riuscire a fare è ottenere un ticket.
+
+Dando uno sguardo al contratto ci accorgiamo di avere 4 funzioni:
+
+joinWaitlist()
+updateWaitTime()
+joinRaffle()
+giftTicket()
+
+Le prime due funzioni servono per entrare a far parte della waitlist e la seconda è per incrementare il tempo di
+atesa.
+
+Ci accorgiamo però subito che entrambe le funzioni hanno un parametro numerico unchecked all'interno.
+
+Questo parametro è riferito al timing della waitlist.
+
+Immaginiamo quindi di voler entrare a far parte della waitlist:
+
+1) Useremo la funzione joinWaitlist() che ci restituirà un timing di attesa quantificato in circa 10 anni.
+
+Ora, come abbiamo detto in precedenza, vediamo che la funzione updateWaitTime() ha una particolarità:
+
+    function updateWaitTime(uint256 _time) external {
+        require(waitlist[msg.sender] != 0, "Join waitlist first");
+        unchecked {
+            waitlist[msg.sender] += uint40(_time);
+        }
+    }
+
+
+Come possiamo vedere, possiamo passare un parametro _time che si va a sommare al tempo già settato in precedenza
+atraverso la funzione joinWaitlist.
+
+Il risultato però è dentro un unchecked e quindi, non è protetto da attacchi di over/underflow.
+
+Cosa possiamo fare?
+
+Il nostro scopo è portare il timing a 0, in modo da poter accedere alla raffle.
+
+Vediamo che la variabile è una uint40.
+
+Se noi prendiamo il nostro timing di waitlist e lo sottraesssimo al valore massimo di uint40, otterremo il
+numero esatto da passare, per far si che il timing venga impostato a 0.
+
+Una volta settato il timing a 0, possiamo entrare nella raffle, e per farlo dobbiamo indovinare un numero.
+
+    function joinRaffle(uint256 _guess) external {
+        require(waitlist[msg.sender] != 0, "Not in waitlist");
+        require(waitlist[msg.sender] <= block.timestamp, "Still have to wait");
+        require(!hasTicket[msg.sender], "Already have a ticket");
+        uint256 randomNumber = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), block.timestamp)));
+        if (randomNumber == _guess) {
+            hasTicket[msg.sender] = true;
+        }
+        delete waitlist[msg.sender];
+    }
+
+Come sappiamo, non è possibile creare numeri random in solidity perche sono tutti prevedibili.
+In questo caso, questa funzione prova a creare un numero random passando questi parametri:
+
+uint256 randomNumber = uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), block.timestamp)));
+
+Basta quindi che eseguiamo lo stesso calcolo che viene fatto dalla funzione per avere il numero da indovinare.
+
+Una volta generato il numero, lo passiamo alla funzione joinRaffle(), la quale emetterà il ticket per noi.
+
+Il procedimento di attacco è in CTF_GOLDEN_TICKET/CTFS_GOLDENTICKET_test/test.js
+
+
+
+
+

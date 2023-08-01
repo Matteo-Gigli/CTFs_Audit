@@ -1,0 +1,95 @@
+Exploit RootMe
+
+Exploit Facile
+
+What the exercise requires of us is to be able to change the victory variable, set to false.
+
+So let's take a look at the contract to understand it better.
+
+There are 3 functions:
+
+1) register(string memory username, string memory salt) which allows us to register.
+2) _getIdentifier(string memory user, string memory salt) which returns the bytes32 of the two parameters together
+3) write(bytes32 storageSlot, bytes32 data) which allows us to write to a specific slot of the contract.
+
+Now let's see specifically the various functions:
+
+    function register(string memory username, string memory salt) public {
+        require(usernames[username] == false, "Username already exists");
+
+        usernames[username] = true;
+
+        bytes32 identifier = _getIdentifier(username, salt);
+        accountByIdentifier[identifier] = msg.sender;
+    }
+
+This is the function to register:
+1) Do a require that checks if the username is already in the contract.
+2) populate the usernames mapping
+3) Create a bytes32 from the passed parameters
+4) populate a map with bytes32 and assign it to the msg.sender
+
+
+
+So let's look at the write() function
+
+    function write(bytes32 storageSlot, bytes32 data) external onlyRoot {
+        assembly {
+            // stores `data` in storage at position `storageSlot`
+            sstore(storageSlot, data)
+        }
+    }
+
+
+As we said the write function allows us to write to a slot, the only thing to note is that it has a
+modifier, which allows access only if the msg.sender is set with the identifier that derives from ROOT, ROOT.
+
+
+The last function we need to see is the following:
+
+    function _getIdentifier(string memory user, string memory salt) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(user, salt));
+    }
+
+
+This function is simply a view that returns the hash of the parameters we pass it.
+
+
+Now we can do some experimenting to see how the hashes of the _getIdentifier() function work:
+
+As we know, the owner of the contract has the identifier set to "ROOT", "ROOT" which are username and salt.
+
+We can then use the _getIdentifier() function to see the bytes corresponding to the owner of the contract.
+
+The result we will have will be the following:
+
+    Owner bytes Identifier = 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a
+
+We therefore have the bytes corresponding to the owner.
+
+Now, what would be the identifier of a user using the register() function, passing it as parameters
+"ROO", "TROOT" ?
+
+always using the _getIdentifier() function, we realize that the result is the following:
+
+    User bytes Identifier = 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a
+
+As we can see it is identical.
+
+But why is this happening?
+
+It happens because there is a concatenation of 2 bytes.
+For example, if you pass:
+
+1) bytes1 = "ROOT", "ROOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+2) bytes2 = "ROO", "TROOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+3) bytes3 = "ROOTR", "OOT" =====> 0x86c4884d46e73de474ea1dc7c8955050781cb540860675454815ce38d996a10a;
+4) ....
+
+We would always get the same result.
+
+This would then open up the possibility for us to go and use the write function, as we now have
+access to it.
+
+So let's go to the write function, after registering with "ROO", "TROOT" and let's set the
+variable victory to true, as we can see from CTF_ROOT_ME/CTFS_ROOTME_test/test.js

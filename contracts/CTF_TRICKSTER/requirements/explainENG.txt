@@ -1,0 +1,50 @@
+Exploit Trickster
+
+Exploit Facile
+
+We need to be able to get all the funds out of the Jackpot contract.
+
+contract Jackpot {
+    address private jackpotProxy;
+    address private owner;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+
+
+    function initialize(address _jackpotProxy) public payable {
+        jackpotProxy = _jackpotProxy;
+    }
+
+
+
+    modifier onlyJackpotProxy() {
+        require(msg.sender == jackpotProxy);
+        _;
+    }
+
+
+
+    function claimPrize(uint256 amount) external payable onlyJackpotProxy {
+        payable(msg.sender).transfer(amount * 2);
+    }
+
+
+
+    fallback() external payable {}
+
+    receive() external payable {}
+}
+
+As we can see, there is a very obvious problem with function logins.
+
+Anyone could set themselves as jackpotProxy, using the initialize() function.
+This is because there are neither modifiers nor require that control who calls this function.
+
+Once we set ourselves as jackpotProxy, the only thing left for us to do is call the function
+claimPrize(), passing it as amount half of what is in the contract.
+
+If we have 50 ether in the contract, we pass 25 ether as a parameter, and this will empty the contract completely.
